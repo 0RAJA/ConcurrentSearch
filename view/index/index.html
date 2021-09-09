@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1 style="margin: auto;text-align: center">搜索</h1>
+<hr>
+<div style="font-size: 20px;text-align: center">
+    <div id="search">
+        <label for="name">文件名:</label><input id="name" type="text">
+        <button onclick="search()">搜索</button>
+        <div>
+            <table style="margin: auto">
+                <tr>
+                    <td>路径</td>
+                </tr>
+            </table>
+            <table id="result" style="text-align: center;border: gray solid 2px"></table>
+        </div>
+    </div>
+</div>
+<script>
+    function search() {
+        let name = document.getElementById("name").value;
+        let xmlHttp;
+        if (window.XMLHttpRequest) {
+            xmlHttp = new XMLHttpRequest();
+        } else {
+            xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlHttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                let text = xmlHttp.responseText;
+                let data = JSON.parse(text);
+                let resultArea = document.getElementById("result");
+                resultArea.innerHTML = "";
+                if (data.err !== "nil") {
+                    let tr = document.createElement("tr");
+                    tr.innerHTML = `<td>空</td>`;
+                    resultArea.appendChild(tr);
+                    return
+                }
+                for (let i = 0; i < data.results.length; i++) {
+                    let tr = document.createElement("tr");
+                    tr.innerHTML = `<td>` + data.results[i] + `</td>`;
+                    resultArea.appendChild(tr);
+                }
+            }
+        }
+        xmlHttp.open("GET", "/index/search?name=" + name, true);
+        xmlHttp.send();
+    }
+</script>
+</body>
+</html>
