@@ -2,7 +2,6 @@ package controller
 
 import (
 	"ConcurrentSearch/server"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -15,9 +14,7 @@ func Search(c *gin.Context) {
 		})
 	} else {
 		results := server.InputMessage(name)
-		fmt.Println(results)
 		if len(results) == 0 {
-			fmt.Println("空")
 			c.JSON(http.StatusOK, gin.H{
 				"err":     "空",
 				"results": []string{},

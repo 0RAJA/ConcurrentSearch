@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="jquery-3.6.0.min.map"></script>
 </head>
 <body>
 <h1 style="margin: auto;text-align: center">搜索</h1>
@@ -42,14 +43,19 @@
                     resultArea.appendChild(tr);
                     return
                 }
-                for (let i = 0; i < data.results.length; i++) {
+
+                let x = data.results.sort(function (a, b) {
+                    return a.length > b.length;
+                });
+
+                for (let i = 0; i < x.length; i++) {
                     let tr = document.createElement("tr");
-                    tr.innerHTML = `<td>` + data.results[i] + `</td>`;
+                    tr.innerHTML = `<td>` + x[i] + `</td>`;
                     resultArea.appendChild(tr);
                 }
             }
         }
-        xmlHttp.open("GET", "/index/search?name=" + name, true);
+        xmlHttp.open("GET", "/index/search?name=" + name, false);
         xmlHttp.send();
     }
 </script>

@@ -3,6 +3,7 @@ package server
 import (
 	mTire "ConcurrentSearch/utils/Tire"
 	"os"
+	"sync"
 )
 
 /*不要通过共享内存来通信，要通过通信来共享内存*/
@@ -18,6 +19,7 @@ var (
 	doneWork      = make(chan bool)   //通知工人完成工作的通道
 	tire          = mTire.Constructor()
 	paths         = "CDEFGHIJKLMNOPQRSTUVWXYZ" //搜索路径
+	mutex         = sync.Mutex{}               //保证工人数不会超
 )
 
 func Constructor() {
@@ -57,7 +59,6 @@ func waitingCenter() { //控制中心
 	for { //一直监听各路消息
 		select {
 		case path := <-searchRequest: //接收到需求,分配任务
-			nowWorker++
 			go search(path, true)
 		case <-doneWork: //工人完成工作,增加空闲工人数
 			nowWorker--
@@ -78,9 +79,13 @@ func search(path string, master bool) {
 			}
 			newPath := path + fileInfo.Name()
 			if fileInfo.IsDir() { //文件夹--发现任务--通知控制中心
+				mutex.Lock()
 				if nowWorker < MaxWorker { //有可用工人就用其他工人干
+					nowWorker++
+					mutex.Unlock()
 					searchRequest <- newPath
 				} else { //没有多余工人就自己干
+					mutex.Unlock()
 					search(newPath, false)
 				}
 			} else {
